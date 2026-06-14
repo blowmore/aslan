@@ -2,7 +2,7 @@ APP=aslan
 EXE=$(APP).exe
 OUTDIR=build
 
-SRCS=main.cpp
+SRCS=main.cpp registry_key.cpp automation_studio_installation.cpp project_parser.cpp
 
 CXX=cl
 CXXFLAGS=/nologo /std:c++17 /EHsc /O2 /DNDEBUG
