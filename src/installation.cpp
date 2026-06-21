@@ -83,7 +83,7 @@ std::vector<Installation> find_installations_in_root(
             version = read_registry_string(control_studio_key.get(), L"ProgrVersion");
         }
 
-        std::wstring executable_path = append_path(install_path, L"bin-en\\.exe");
+        std::wstring executable_path = append_path(install_path, L"bin-en\\AutomationStudio.exe");
         installations.push_back({version, install_path, executable_path, file_exists(executable_path)});
     }
 
