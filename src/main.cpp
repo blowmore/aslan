@@ -15,6 +15,13 @@ std::wstring widen_ascii(const std::string& value)
     return std::wstring(value.begin(), value.end());
 }
 
+// Note: Old options
+// RunAsAdministrator  false
+// RestoreSession   true
+// WaitExit         false
+// WarnAboutPolicy  true
+
+
 int wmain(int argc, wchar_t* argv[])
 {
     const std::vector<Installation> installations = find_installations();
