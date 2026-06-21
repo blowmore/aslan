@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-struct AutomationStudioInstallation
+struct Installation
 {
     std::wstring version;
     std::wstring install_path;
@@ -11,6 +11,6 @@ struct AutomationStudioInstallation
     bool executable_exists = false;
 };
 
-std::vector<AutomationStudioInstallation> find_automation_studio_installations();
-void print_installations(const std::vector<AutomationStudioInstallation>& installations);
+std::vector<Installation> find_installations();
+void print_installations(const std::vector<Installation>& installations);
 bool starts_with(const std::wstring& value, const std::wstring& prefix);

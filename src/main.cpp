@@ -1,6 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 
-#include "automation_studio_installation.hpp"
+#include "installation.hpp"
 #include "project_parser.hpp"
 
 #include <algorithm>
@@ -17,13 +17,13 @@ std::wstring widen_ascii(const std::string& value)
 
 int wmain(int argc, wchar_t* argv[])
 {
-    const std::vector<AutomationStudioInstallation> installations = find_automation_studio_installations();
+    const std::vector<Installation> installations = find_installations();
     print_installations(installations);
 
     if (argc > 1)
     {
         const std::filesystem::path project_path(argv[1]);
-        const std::optional<std::string> project_version = read_project_automation_studio_version(project_path);
+        const std::optional<std::string> project_version = read_project_version(project_path);
 
         if (!project_version)
         {
@@ -37,7 +37,7 @@ int wmain(int argc, wchar_t* argv[])
         const auto matching_installation = std::find_if(
             installations.begin(),
             installations.end(),
-            [&required_version](const AutomationStudioInstallation& installation)
+            [&required_version](const Installation& installation)
             {
                 return starts_with(installation.version, required_version);
             });

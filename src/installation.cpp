@@ -1,4 +1,4 @@
-#include "automation_studio_installation.hpp"
+#include "installation.hpp"
 #include "registry_key.hpp"
 
 #include <algorithm>
@@ -46,7 +46,7 @@ std::wstring append_path(const std::wstring& base, const std::wstring& child)
     return base + L"\\" + child;
 }
 
-std::vector<AutomationStudioInstallation> find_automation_studio_installations_in_root(
+std::vector<Installation> find_installations_in_root(
     const std::wstring& registry_root,
     REGSAM access)
 {
@@ -56,7 +56,7 @@ std::vector<AutomationStudioInstallation> find_automation_studio_installations_i
         return {};
     }
 
-    std::vector<AutomationStudioInstallation> installations;
+    std::vector<Installation> installations;
     for (const std::wstring& sub_key_name : enumerate_sub_keys(root.get()))
     {
         if (!contains_case_insensitive(sub_key_name, L"BR_AS"))
@@ -83,7 +83,7 @@ std::vector<AutomationStudioInstallation> find_automation_studio_installations_i
             version = read_registry_string(control_studio_key.get(), L"ProgrVersion");
         }
 
-        std::wstring executable_path = append_path(install_path, L"bin-en\\AutomationStudio.exe");
+        std::wstring executable_path = append_path(install_path, L"bin-en\\.exe");
         installations.push_back({version, install_path, executable_path, file_exists(executable_path)});
     }
 
@@ -97,25 +97,25 @@ std::vector<AutomationStudioInstallation> find_automation_studio_installations_i
 
 } // namespace
 
-std::vector<AutomationStudioInstallation> find_automation_studio_installations()
+std::vector<Installation> find_installations()
 {
-    std::vector<AutomationStudioInstallation> installations =
-        find_automation_studio_installations_in_root(L"SOFTWARE", KEY_READ | KEY_WOW64_32KEY);
+    std::vector<Installation> installations =
+        find_installations_in_root(L"SOFTWARE", KEY_READ | KEY_WOW64_32KEY);
 
     if (installations.empty())
     {
-        installations = find_automation_studio_installations_in_root(L"SOFTWARE\\WOW6432Node", KEY_READ);
+        installations = find_installations_in_root(L"SOFTWARE\\WOW6432Node", KEY_READ);
     }
 
     if (installations.empty())
     {
-        installations = find_automation_studio_installations_in_root(L"SOFTWARE", KEY_READ);
+        installations = find_installations_in_root(L"SOFTWARE", KEY_READ);
     }
 
     return installations;
 }
 
-void print_installations(const std::vector<AutomationStudioInstallation>& installations)
+void print_installations(const std::vector<Installation>& installations)
 {
     std::wcout << L"Automation Studio installations\n\n";
 
@@ -127,7 +127,7 @@ void print_installations(const std::vector<AutomationStudioInstallation>& instal
 
     for (std::size_t index = 0; index < installations.size(); ++index)
     {
-        const AutomationStudioInstallation& installation = installations[index];
+        const Installation& installation = installations[index];
 
         std::wcout << index + 1 << L". Version: "
                    << (installation.version.empty() ? L"(unknown)" : installation.version) << L"\n";

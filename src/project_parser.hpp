@@ -4,4 +4,4 @@
 #include <optional>
 #include <string>
 
-std::optional<std::string> read_project_automation_studio_version(const std::filesystem::path& project_path);
+std::optional<std::string> read_project_version(const std::filesystem::path& project_path);
