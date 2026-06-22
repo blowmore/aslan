@@ -4,7 +4,7 @@
 #include <iterator>
 #include <regex>
 
-std::optional<std::string> read_project_version(const std::filesystem::path& project_path)
+std::optional<Version> read_project_version(const std::filesystem::path& project_path)
 {
     std::ifstream project_file(project_path, std::ios::binary);
     if (!project_file)
