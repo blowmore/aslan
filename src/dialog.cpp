@@ -75,6 +75,14 @@ namespace
             case WM_INITDIALOG:
                 state = reinterpret_cast<State*>(lparam);
                 SetWindowLongPtrW(hwnd, DWLP_USER, reinterpret_cast<LONG_PTR>(state));
+                SendDlgItemMessageW(
+                    hwnd,
+                    IDC_DIALOG_ICON,
+                    STM_SETICON,
+                    reinterpret_cast<WPARAM>(LoadIconW(
+                        nullptr,
+                        reinterpret_cast<LPCWSTR>(IDI_WARNING))),
+                    0);
                 SetDlgItemTextW(hwnd, IDC_DIALOG_MESSAGE, state->message.c_str());
                 populate(GetDlgItem(hwnd, IDC_DIALOG_COMBO), state->choices);
                 return TRUE;
@@ -94,6 +102,19 @@ namespace
                         return TRUE;
                 }
                 break;
+
+            case WM_CTLCOLORSTATIC:
+                SetBkMode(reinterpret_cast<HDC>(wparam), TRANSPARENT);
+                if (GetDlgCtrlID(reinterpret_cast<HWND>(lparam)) == IDC_DIALOG_FOOTER)
+                {
+                    SetBkMode(reinterpret_cast<HDC>(wparam), OPAQUE);
+                    SetBkColor(reinterpret_cast<HDC>(wparam), GetSysColor(COLOR_BTNFACE));
+                    return reinterpret_cast<INT_PTR>(GetSysColorBrush(COLOR_BTNFACE));
+                }
+                return reinterpret_cast<INT_PTR>(GetSysColorBrush(COLOR_WINDOW));
+
+            case WM_CTLCOLORDLG:
+                return reinterpret_cast<INT_PTR>(GetSysColorBrush(COLOR_WINDOW));
         }
 
         return FALSE;

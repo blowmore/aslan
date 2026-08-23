@@ -8,7 +8,7 @@ RES=$(OUTDIR)\dialog.res
 CXX=cl
 RC=rc
 CXXFLAGS=/nologo /std:c++17 /EHsc /O2 /DNDEBUG /Fo$(OUTDIR)\ /Fd$(OUTDIR)\vc.pdb
-LDFLAGS=/nologo /SUBSYSTEM:CONSOLE Advapi32.lib User32.lib
+LDFLAGS=/nologo /SUBSYSTEM:CONSOLE Advapi32.lib User32.lib Gdi32.lib
 
 all: $(OUTDIR)\$(EXE)
 
