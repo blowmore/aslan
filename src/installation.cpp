@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <cwctype>
 #include <filesystem>
-#include <iostream>
 
 namespace
 {
@@ -113,32 +112,6 @@ std::vector<Installation> find_installations()
     }
 
     return installations;
-}
-
-void print_installations(const std::vector<Installation>& installations)
-{
-    std::wcout << L"Automation Studio installations\n\n";
-
-    if (installations.empty())
-    {
-        std::wcout << L"No Automation Studio installations found.\n";
-        return;
-    }
-
-    for (std::size_t index = 0; index < installations.size(); ++index)
-    {
-        const Installation& installation = installations[index];
-
-        std::wcout << index + 1 << L". Version: "
-                   << (installation.version.empty() ? L"(unknown)" : installation.version) << L"\n";
-        std::wcout << L"   Install path: " << installation.install_path << L"\n";
-        std::wcout << L"   Executable:   " << installation.executable_path;
-        if (!installation.executable_exists)
-        {
-            std::wcout << L" (missing)";
-        }
-        std::wcout << L"\n\n";
-    }
 }
 
 bool starts_with(const std::wstring& value, const std::wstring& prefix)

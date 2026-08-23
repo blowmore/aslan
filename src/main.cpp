@@ -62,7 +62,6 @@ int choose_and_launch_project(
 int wmain(int argc, wchar_t* argv[])
 {
     const std::vector<Installation> installations = find_installations();
-    print_installations(installations);
 
     if (argc > 1)
     {

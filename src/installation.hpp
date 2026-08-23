@@ -12,5 +12,4 @@ struct Installation
 };
 
 std::vector<Installation> find_installations();
-void print_installations(const std::vector<Installation>& installations);
 bool starts_with(const std::wstring& value, const std::wstring& prefix);
