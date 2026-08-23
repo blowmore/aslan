@@ -1,6 +1,7 @@
 #include "installation.hpp"
 #include "launch.hpp"
-#include "project_parser.hpp"
+#include "parse.hpp"
+#include "dialog.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -12,6 +13,43 @@
 std::wstring widen_ascii(const std::string& value)
 {
     return std::wstring(value.begin(), value.end());
+}
+
+int launch_project(const Installation& installation, const std::filesystem::path& project_path)
+{
+    std::wcout << L"Executable: " << installation.executable_path;
+    if (!installation.executable_exists)
+    {
+        std::wcout << L" (missing)";
+    }
+    std::wcout << L"\n";
+
+    if (!installation.executable_exists)
+    {
+        return 1;
+    }
+
+    std::wcout << L"Launching project...\n";
+    return launch(installation, project_path) ? 0 : 1;
+}
+
+int choose_and_launch_project(
+    const std::vector<Installation>& installations,
+    const std::wstring& message,
+    const std::filesystem::path& project_path)
+{
+    const std::optional<std::size_t> selected_installation = dialog(installations, message);
+
+    if (!selected_installation || *selected_installation >= installations.size())
+    {
+        std::wcout << L"No Automation Studio version selected.\n";
+        return 1;
+    }
+
+    const Installation& installation = installations[*selected_installation];
+    std::wcout << L"Selected version: "
+               << (installation.version.empty() ? L"(unknown)" : installation.version) << L"\n";
+    return launch_project(installation, project_path);
 }
 
 // Note: Old options
@@ -29,12 +67,14 @@ int wmain(int argc, wchar_t* argv[])
     if (argc > 1)
     {
         const std::filesystem::path project_path(argv[1]);
-        const std::optional<std::string> project_version = read_project_version(project_path);
+        const std::optional<Version> project_version = parse(project_path);
 
         if (!project_version)
         {
-            std::wcout << L"Could not read an Automation Studio version from: " << project_path.wstring() << L"\n";
-            return 1;
+            const std::wstring message =
+                L"Could not read an Automation Studio version from this project.";
+            std::wcout << message << L" Path: " << project_path.wstring() << L"\n";
+            return choose_and_launch_project(installations, message, project_path);
         }
 
         const std::wstring required_version = widen_ascii(*project_version);
@@ -50,25 +90,14 @@ int wmain(int argc, wchar_t* argv[])
 
         if (matching_installation != installations.end())
         {
-            std::wcout << L"Matching executable: " << matching_installation->executable_path;
-            if (!matching_installation->executable_exists)
-            {
-                std::wcout << L" (missing)";
-            }
-            std::wcout << L"\n";
-
-            if (!matching_installation->executable_exists)
-            {
-                return 1;
-            }
-
-            std::wcout << L"Launching project...\n";
-            return launch(*matching_installation, project_path) ? 0 : 1;
+            return launch_project(*matching_installation, project_path);
         }
         else
         {
-            std::wcout << L"No installed Automation Studio version matches " << required_version << L".\n";
-            return 1;
+            const std::wstring message =
+                L"No installed Automation Studio version matches " + required_version + L".";
+            std::wcout << message << L"\n";
+            return choose_and_launch_project(installations, message, project_path);
         }
     }
 

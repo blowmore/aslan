@@ -6,4 +6,4 @@
 
 typedef std::string Version;
 
-std::optional<std::string> read_project_version(const std::filesystem::path& project_path);
+std::optional<Version> parse(const std::filesystem::path& project_path);
