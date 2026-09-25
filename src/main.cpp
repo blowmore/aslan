@@ -3,6 +3,8 @@
 #include "parse.hpp"
 #include "dialog.hpp"
 
+#include <windows.h>
+
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -62,10 +64,20 @@ int choose_and_launch_project(
 int wmain(int argc, wchar_t* argv[])
 {
     const std::vector<Installation> installations = find_installations();
+    const bool shift_pressed = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
 
     if (argc > 1)
     {
         const std::filesystem::path project_path(argv[1]);
+
+        if (shift_pressed)
+        {
+            return choose_and_launch_project(
+                installations,
+                L"Select the Automation Studio version to use.",
+                project_path);
+        }
+
         const std::optional<Version> project_version = parse(project_path);
 
         if (!project_version)
