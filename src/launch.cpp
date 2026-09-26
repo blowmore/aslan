@@ -92,12 +92,18 @@ void remove_project_open_state(const std::filesystem::path& project_path)
 
 } // namespace
 
-bool launch(const Installation& installation, const std::filesystem::path& project_path)
+bool launch(
+    const Installation& installation,
+    const std::filesystem::path& project_path,
+    const Settings& settings)
 {
     const std::filesystem::path executable_path(installation.executable_path);
     const std::wstring absolute_project_path = std::filesystem::absolute(project_path).wstring();
-    remove_session_state(project_path);
-    remove_project_open_state(project_path);
+    if (settings.clear_user_state)
+    {
+        remove_session_state(project_path);
+        remove_project_open_state(project_path);
+    }
     std::wstring command_line =
         quote_windows_argument(installation.executable_path) + L" " +
         quote_windows_argument(absolute_project_path);

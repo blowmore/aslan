@@ -2,13 +2,13 @@ APP=aslan
 EXE=$(APP).exe
 OUTDIR=build
 
-SRCS=src\main.cpp src\registry_key.cpp src\installation.cpp src\parse.cpp src\launch.cpp src\dialog.cpp
+SRCS=src\main.cpp src\registry_key.cpp src\installation.cpp src\parse.cpp src\launch.cpp src\dialog.cpp src\settings.cpp
 RES=$(OUTDIR)\dialog.res
 
 CXX=cl
 RC=rc
 CXXFLAGS=/nologo /std:c++17 /EHsc /O2 /DNDEBUG /Fo$(OUTDIR)\ /Fd$(OUTDIR)\vc.pdb
-LDFLAGS=/nologo /SUBSYSTEM:CONSOLE Advapi32.lib User32.lib Gdi32.lib
+LDFLAGS=/nologo /SUBSYSTEM:CONSOLE Advapi32.lib User32.lib Gdi32.lib Shell32.lib Ole32.lib
 
 all: $(OUTDIR)\$(EXE)
 

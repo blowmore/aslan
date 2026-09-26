@@ -22,6 +22,8 @@ namespace
         std::wstring message;
         std::vector<Choice> choices;
         std::optional<std::size_t> selected;
+        Settings settings;
+        std::optional<std::size_t> preferred_installation;
     };
 
     std::wstring get_label(const Installation& installation)
@@ -34,7 +36,10 @@ namespace
         return reinterpret_cast<State*>(GetWindowLongPtrW(hwnd, DWLP_USER));
     }
 
-    void populate(HWND combo, const std::vector<Choice>& choices)
+    void populate(
+        HWND combo,
+        const std::vector<Choice>& choices,
+        std::optional<std::size_t> preferred_installation)
     {
         for (const Choice& choice : choices)
         {
@@ -47,7 +52,20 @@ namespace
 
         if (!choices.empty())
         {
-            SendMessageW(combo, CB_SETCURSEL, (choices.size() - 1), 0);
+            std::size_t selected = choices.size() - 1;
+            if (preferred_installation)
+            {
+                for (std::size_t index = 0; index < choices.size(); ++index)
+                {
+                    if (choices[index].index == *preferred_installation)
+                    {
+                        selected = index;
+                        break;
+                    }
+                }
+            }
+
+            SendMessageW(combo, CB_SETCURSEL, selected, 0);
         }
     }
 
@@ -63,6 +81,9 @@ namespace
                 state.selected = static_cast<std::size_t>(data);
             }
         }
+
+        state.settings.clear_user_state =
+            IsDlgButtonChecked(hwnd, IDC_DIALOG_CLEAR_STATE) == BST_CHECKED;
 
         EndDialog(hwnd, IDOK);
     }
@@ -84,7 +105,14 @@ namespace
                         reinterpret_cast<LPCWSTR>(IDI_WARNING))),
                     0);
                 SetDlgItemTextW(hwnd, IDC_DIALOG_MESSAGE, state->message.c_str());
-                populate(GetDlgItem(hwnd, IDC_DIALOG_COMBO), state->choices);
+                CheckDlgButton(
+                    hwnd,
+                    IDC_DIALOG_CLEAR_STATE,
+                    state->settings.clear_user_state ? BST_CHECKED : BST_UNCHECKED);
+                populate(
+                    GetDlgItem(hwnd, IDC_DIALOG_COMBO),
+                    state->choices,
+                    state->preferred_installation);
                 return TRUE;
         
             case WM_COMMAND:
@@ -121,10 +149,16 @@ namespace
     }
 }
 
-std::optional<std::size_t> dialog(const std::vector<Installation>& installations, const std::wstring& message)
+std::optional<DialogResult> dialog(
+    const std::vector<Installation>& installations,
+    const std::wstring& message,
+    const Settings& settings,
+    std::optional<std::size_t> preferred_installation)
 {
     State state;
     state.message = message;
+    state.settings = settings;
+    state.preferred_installation = preferred_installation;
 
     for (std::size_t index = 0; (index < installations.size()); index++)
     {
@@ -152,5 +186,10 @@ std::optional<std::size_t> dialog(const std::vector<Installation>& installations
         return std::nullopt;
     }
 
-    return state.selected;
+    if (!state.selected)
+    {
+        return std::nullopt;
+    }
+
+    return DialogResult{*state.selected, state.settings};
 }
